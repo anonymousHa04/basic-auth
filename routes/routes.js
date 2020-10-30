@@ -72,7 +72,7 @@ router.post('/login', async (req, res) => {
             const token = await user.generateAuthToken()
             res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
             // res.status(201).send({ user })
-            res.status(201).send(`You are logged in with with creds ${user}`)
+            res.status(201).send(`You are logged in with creds ${user}`)
         }
 
     } catch (e) {
