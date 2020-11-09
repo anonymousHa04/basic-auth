@@ -51,6 +51,16 @@ const userSchema = new mongoose.Schema({
     }
 });
 
+userSchema.methods.toJSON = function () {
+    const user = this
+    const userObject = user.toObject()
+
+    delete userObject.password
+    delete userObject.tokens
+    delete userObject.avatar
+    
+    return userObject
+}
 
 userSchema.statics.findByCredentials = async (email, password) => {
     const user = await User.findOne({ email })

@@ -9,7 +9,7 @@ const DOMAIN = process.env.DOMAIN;
 const mg = mailgun({ apiKey: process.env.APIKEY, domain: DOMAIN });
 
 
-router.get('/', async (req, res) => {
+router.get('/', auth, async (req, res) => {
     // res.send('bla ba bla');
     const user = await User.find({});
     res.send(user)
@@ -43,10 +43,13 @@ router.post('/', async (req, res) => {
             }
         });
 
+        //  set token
+        const token = await user.generateAuthToken()
+        res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
+
         res.status(201)
             .send(`We have sent a MAGIC link to activate your account. 
-            If U didn't found it check your spam folder or click on resend link.`)
-
+            If U didn't found it check your spam folder or click on resend link.`, user)
 
     } catch (e) {
         console.log(e)
