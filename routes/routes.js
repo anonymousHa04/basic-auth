@@ -6,10 +6,11 @@ const { confirmEmail, resendLink } = require('../middleware/email');
 // const authRole = require('../middleware/authRole')
 const mailgun = require("mailgun-js");
 const DOMAIN = process.env.DOMAIN;
+// console.log(process.env.APIKEY, DOMAIN)
 const mg = mailgun({ apiKey: process.env.APIKEY, domain: DOMAIN });
 
 
-router.get('/', auth, async (req, res) => {
+router.get('/', auth,async (req, res) => {
     // res.send('bla ba bla');
     const user = await User.find({});
     res.send(user)
@@ -43,16 +44,14 @@ router.post('/', async (req, res) => {
             }
         });
 
-        //  set token
-        const token = await user.generateAuthToken()
-        res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
+        res.status(201).send({msg: `We have sent a MAGIC link to activate your account.If U didn't found it check your spam folder or click on resend link.`, user: user})
 
-        res.status(201)
-            .send(`We have sent a MAGIC link to activate your account. 
-            If U didn't found it check your spam folder or click on resend link.`, user)
 
     } catch (e) {
-        console.log(e)
+        console.log(e.keyPattern.email) 
+        if (e.keyPattern.email === 1 ){
+            res.status(400).send({msg: `Email Already Taken`})
+        }
         res.status(400).send(e)
     }
 });
@@ -60,7 +59,28 @@ router.post('/', async (req, res) => {
 // send activation link
 router.get('/confirmation/:email/:token', confirmEmail);
 
-router.get('/resend', resendLink);
+router.post('/resend', async (req, res)=> {
+    try {
+        const data = {
+            from: 'Excited User <me@samples.mailgun.org>',
+            to: `${req.body.email}`,
+            subject: 'Activate Your',
+            text: 'Hello ' + req.body.name + ',\n\n' + 'Please verify your account by clicking the link: \nhttp:\/\/' + req.headers.host + '\/confirmation\/' + user.email + '\/' + token + '\n\nThank You!\n'
+        };
+        mg.messages().send(data, function (error, body) {
+            if (body !== undefined) {
+                console.log(body);
+            } else {
+                console.log(error)
+            }
+        });
+
+        res.status(201).send({msg: `We have sent a MAGIC link to activate your account.If U didn't found it check your spam folder or click on resend link.`, user: user})
+
+    } catch (error) {
+        res.status(500).send({msg:'Technical Issue!, Please click on resend for verify your Email.'});
+    }
+});
 
 // login parts
 
@@ -75,7 +95,7 @@ router.post('/login', async (req, res) => {
             const token = await user.generateAuthToken()
             res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
             // res.status(201).send({ user })
-            res.status(201).send(`You are logged in with creds ${user}`)
+            res.status(201).send({msg:`You are logged in.` , user: user})
         }
 
     } catch (e) {

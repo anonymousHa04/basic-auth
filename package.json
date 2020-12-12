@@ -59,7 +59,7 @@
     "nodemon": "^2.0.4"
   },
   "scripts": {
-    "start": "nodemon server.js",
+    "start": "node server.js",
     "dev": "env-cmd -f ./config/.env nodemon server.js"
   },
   "keywords": [],
