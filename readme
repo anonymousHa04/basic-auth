@@ -47,4 +47,17 @@ RESPONSE : It returns the String as a response
 API DOMAIN or ADDRESS : https://harsh-auth-docker.herokuapp.com/logout
 
 
+for Blogs
+
+'/postBlog' for posting blogs
+
+'/blogs' for getting all blogs
+
+'/blogs/:ownerid' for getting user blogs
+
+'/blog/:id'  for getting, updating and deleting particular blog id
+
+"/uploadfiles"  for uploading blogs
+
+
 I found helpful please use it carefully
